@@ -1,0 +1,7 @@
+-- CreateTable
+CREATE TABLE "Restaurant" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "name" TEXT NOT NULL,
+    "category" TEXT NOT NULL,
+    "rating" REAL
+);

@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EasyFood</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&family=Young+Serif&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --pistache: #E6EDCF;
+            --folha: #FBFCF4;
+            --tinta: #2A1838;
+            --suave: #5E5468;
+            --linha: #BFCB9C;
+            --tomate: #C9321E;
+            --tomate-escuro: #A82715;
+            --mostarda: #F2B632;
+            --erro: #A3200F;
+            --ok: #2C6A31;
+
+            --display: 'Young Serif', Georgia, 'Times New Roman', serif;
+            --texto: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        }
+
+        *, *::before, *::after { box-sizing: border-box; }
+
+        [hidden] { display: none !important; }
+
+        body {
+            margin: 0;
+            background: var(--pistache);
+            color: var(--tinta);
+            font-family: var(--texto);
+            font-size: 1rem;
+            line-height: 1.5;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        :focus-visible {
+            outline: 3px solid var(--tinta);
+            outline-offset: 2px;
+        }
+
+        /* ===== Topo ===== */
+        .topo {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 48px 24px 20px;
+        }
+
+        .topo h1 {
+            margin: 0;
+            font-family: var(--display);
+            font-weight: 400;
+            font-size: clamp(2.8rem, 8vw, 5rem);
+            line-height: 1;
+            letter-spacing: -0.01em;
+        }
+
+        .topo p {
+            margin: 10px 0 0;
+            color: var(--suave);
+            font-size: 1.1rem;
+        }
+
+        .regua {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .regua hr {
+            margin: 0;
+            border: 0;
+            border-top: 4px double var(--tinta);
+        }
+
+        /* ===== Layout ===== */
+        .layout {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 12px 24px 64px;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 340px;
+            gap: 56px;
+            align-items: start;
+        }
+
+        .lateral {
+            position: sticky;
+            top: 24px;
+            display: grid;
+            gap: 20px;
+        }
+
+        @media (max-width: 860px) {
+            .layout {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+            .lateral {
+                position: static;
+            }
+        }
+
+        /* ===== Cardápio ===== */
+        .filtros {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 20px 0 4px;
+        }
+
+        .chip {
+            padding: 7px 14px;
+            border: 1.5px solid var(--tinta);
+            border-radius: 999px;
+            background: transparent;
+            color: var(--tinta);
+            font: 600 0.95rem var(--texto);
+            cursor: pointer;
+            transition: background-color 0.15s, color 0.15s;
+        }
+
+        .chip:hover {
+            background: rgba(42, 24, 56, 0.08);
+        }
+
+        .chip[aria-pressed="true"] {
+            background: var(--tinta);
+            color: var(--folha);
+        }
+
+        .grupo h3 {
+            margin: 32px 0 6px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid var(--tinta);
+            font-family: var(--display);
+            font-weight: 400;
+            font-size: 1.7rem;
+            line-height: 1.2;
+        }
+
+        .grupo > ul {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .restaurante {
+            padding: 6px 0 10px;
+            border-bottom: 1px solid var(--linha);
+        }
+
+        .restaurante:last-child {
+            border-bottom: 0;
+        }
+
+        .prato {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+            padding: 8px 0 4px;
+        }
+
+        .prato .nome {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .prato .pontilhado {
+            flex: 1;
+            min-width: 24px;
+            border-bottom: 2px dotted var(--suave);
+            transform: translateY(-0.25em);
+        }
+
+        .prato .nota {
+            flex-shrink: 0;
+            padding: 2px 11px;
+            border-radius: 999px;
+            background: var(--tinta);
+            color: var(--mostarda);
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .selo {
+            display: inline-block;
+            margin-left: 8px;
+            padding: 1px 9px;
+            border: 1.5px solid var(--ok);
+            border-radius: 999px;
+            color: var(--ok);
+            font-size: 0.8rem;
+            font-weight: 700;
+            vertical-align: 0.1em;
+        }
+
+        .acoes {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 4px 0 2px;
+        }
+
+        .vazio {
+            margin: 40px 0;
+            max-width: 46ch;
+            color: var(--suave);
+            font-size: 1.05rem;
+        }
+
+        .mudo {
+            margin: 10px 0;
+            color: var(--suave);
+            font-size: 0.95rem;
+        }
+
+        /* ===== Pratos de cada restaurante ===== */
+        .cardapio-rest {
+            margin: 10px 0 6px;
+            padding: 6px 18px 18px;
+            background: var(--folha);
+            border: 1px solid var(--linha);
+            border-radius: 14px;
+        }
+
+        .pratos {
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .item {
+            display: grid;
+            grid-template-columns: 76px minmax(0, 1fr);
+            gap: 14px;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--linha);
+        }
+
+        .item:last-child {
+            border-bottom: 0;
+        }
+
+        .foto {
+            width: 76px;
+            height: 76px;
+            border-radius: 10px;
+            border: 1px solid var(--linha);
+            object-fit: cover;
+            background: var(--pistache);
+        }
+
+        .foto.sem {
+            display: grid;
+            place-items: center;
+            font-size: 1.8rem;
+        }
+
+        .item .linha {
+            display: flex;
+            align-items: baseline;
+            gap: 10px;
+        }
+
+        .item .linha strong {
+            font-size: 1.05rem;
+        }
+
+        .item .pontilhado {
+            flex: 1;
+            min-width: 16px;
+            border-bottom: 2px dotted var(--suave);
+            transform: translateY(-0.25em);
+        }
+
+        .item .preco {
+            flex-shrink: 0;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .item p {
+            margin: 2px 0 0;
+            color: var(--suave);
+            font-size: 0.95rem;
+        }
+
+        .item .acoes {
+            margin-top: 8px;
+        }
+
+        .form-prato {
+            margin-top: 10px;
+            padding-top: 16px;
+            border-top: 1px solid var(--tinta);
+        }
+
+        .form-prato h4 {
+            margin: 0 0 12px;
+            font-family: var(--display);
+            font-weight: 400;
+            font-size: 1.15rem;
+        }
+
+        /* ===== Painéis ===== */
+        .painel {
+            padding: 22px;
+            background: var(--folha);
+            border: 1px solid var(--linha);
+            border-radius: 14px;
+        }
+
+        .painel h2 {
+            margin: 0 0 16px;
+            font-family: var(--display);
+            font-weight: 400;
+            font-size: 1.35rem;
+            line-height: 1.2;
+        }
+
+        .modos {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .campo {
+            margin-bottom: 14px;
+        }
+
+        .campo label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .campo input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1.5px solid #8A8096;
+            border-radius: 8px;
+            background: #fff;
+            color: var(--tinta);
+            font: 400 1rem var(--texto);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 11px 18px;
+            border: 0;
+            border-radius: 8px;
+            background: var(--tomate);
+            color: #fff;
+            font: 700 1rem var(--texto);
+            cursor: pointer;
+            transition: background-color 0.15s;
+        }
+
+        .btn:hover {
+            background: var(--tomate-escuro);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn.secundario {
+            border: 1.5px solid var(--tinta);
+            background: transparent;
+            color: var(--tinta);
+        }
+
+        .btn.secundario:hover {
+            background: rgba(42, 24, 56, 0.08);
+        }
+
+        .btn.perigo {
+            border: 1.5px solid var(--erro);
+            background: transparent;
+            color: var(--erro);
+        }
+
+        .btn.perigo:hover {
+            background: var(--erro);
+            color: #fff;
+        }
+
+        .btn.pequeno {
+            width: auto;
+            padding: 5px 13px;
+            font-size: 0.9rem;
+        }
+
+        fieldset {
+            min-width: 0;
+            margin: 0;
+            padding: 0;
+            border: 0;
+        }
+
+        fieldset:disabled {
+            opacity: 0.5;
+        }
+
+        fieldset:disabled .btn {
+            cursor: not-allowed;
+        }
+
+        .dica {
+            margin: 0 0 14px;
+            color: var(--suave);
+            font-size: 0.95rem;
+        }
+
+        .aviso {
+            min-height: 1.4em;
+            margin: 12px 0 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .aviso.erro { color: var(--erro); }
+        .aviso.ok { color: var(--ok); }
+
+        .aviso-geral {
+            margin: 16px 0 0;
+            padding: 10px 14px;
+            border: 1.5px solid var(--erro);
+            border-radius: 8px;
+            background: var(--folha);
+            color: var(--erro);
+            font-weight: 600;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="topo">
+        <h1>EasyFood</h1>
+        <p>Os restaurantes cadastrados, agrupados por categoria.</p>
+    </header>
+    <div class="regua"><hr></div>
+
+    <div class="layout">
+
+        <!-- Cardápio -->
+        <main>
+            <h2 class="sr-only">Restaurantes</h2>
+            <p id="avisoGeral" class="aviso-geral" role="alert" hidden></p>
+            <div id="filtros" class="filtros" role="group" aria-label="Filtrar por categoria"></div>
+            <div id="cardapio" aria-live="polite"></div>
+        </main>
+
+        <aside class="lateral">
+
+            <!-- Conta -->
+            <section class="painel" aria-labelledby="tituloConta">
+                <h2 id="tituloConta">Sua conta</h2>
+
+                <div id="blocoAcesso">
+                    <div class="modos" role="group" aria-label="Escolha uma opção">
+                        <button type="button" class="chip" data-modo="entrar" aria-pressed="true">Entrar</button>
+                        <button type="button" class="chip" data-modo="registro" aria-pressed="false">Criar conta</button>
+                    </div>
+
+                    <form id="formAcesso" novalidate>
+                        <div class="campo" id="campoNome" hidden>
+                            <label for="cNome">Nome</label>
+                            <input type="text" id="cNome" autocomplete="name">
+                        </div>
+                        <div class="campo">
+                            <label for="cEmail">E-mail</label>
+                            <input type="email" id="cEmail" autocomplete="email" required>
+                        </div>
+                        <div class="campo">
+                            <label for="cSenha">Senha</label>
+                            <input type="password" id="cSenha" autocomplete="current-password" required>
+                        </div>
+                        <button type="submit" class="btn" id="btnAcesso">Entrar</button>
+                    </form>
+                    <p id="avisoConta" class="aviso" role="status"></p>
+                </div>
+
+                <div id="blocoSessao" hidden>
+                    <p class="dica">Você está logado como <strong id="nomeLogado"></strong>.</p>
+                    <button type="button" class="btn secundario" id="btnSair">Sair</button>
+                </div>
+            </section>
+
+            <!-- Novo restaurante -->
+            <section class="painel" aria-labelledby="tituloNovo">
+                <h2 id="tituloNovo">Novo restaurante</h2>
+                <p class="dica" id="dicaLogin">Entre na sua conta para cadastrar restaurantes.</p>
+
+                <form id="formRestaurante">
+                    <fieldset id="camposRestaurante" disabled>
+                        <div class="campo">
+                            <label for="rNome">Nome</label>
+                            <input type="text" id="rNome" required>
+                        </div>
+                        <div class="campo">
+                            <label for="rCategoria">Categoria</label>
+                            <input type="text" id="rCategoria" list="listaCategorias" placeholder="Ex.: Pizza" required>
+                            <datalist id="listaCategorias"></datalist>
+                        </div>
+                        <div class="campo">
+                            <label for="rNota">Nota (de 0 a 5)</label>
+                            <input type="number" id="rNota" step="0.1" min="0" max="5" required>
+                        </div>
+                        <button type="submit" class="btn">Cadastrar restaurante</button>
+                    </fieldset>
+                </form>
+                <p id="avisoRestaurante" class="aviso" role="status"></p>
+            </section>
+
+        </aside>
+    </div>
+
+    <script>
+        (() => {
+            'use strict';
+
+            // Vazio = mesma origem (o Express serve esta página e a API juntos).
+            // Se abrir o arquivo de outro lugar, use 'http://localhost:3000'.
+            const BASE_URL = '';
+            const API_URL = `${BASE_URL}/restaurants`;
+            const AUTH_URL = `${BASE_URL}/auth`;
+            const DISHES_URL = `${BASE_URL}/dishes`;
+
+            // true: o navegador avisa antes de enviar imagens acima de 5 MB.
+            // false: envia mesmo assim, para você ver a resposta 413 do servidor.
+            const VALIDAR_TAMANHO_NO_NAVEGADOR = true;
+            const LIMITE_IMAGEM_MB = 5;
+
+            const $ = (id) => document.getElementById(id);
+
+            let restaurantes = [];
+            let categoriaAtiva = '';
+            let modo = 'entrar';
+
+            /* ===== Utilitários ===== */
+
+            // Escapa texto vindo do banco antes de colocá-lo em innerHTML
+            function escapeHtml(valor = '') {
+                return String(valor)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#39;');
+            }
+
+            function formatarNota(valor) {
+                return Number(valor ?? 0).toFixed(1).replace('.', ',');
+            }
+
+            function formatarPreco(valor) {
+                return Number(valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+            }
+
+            function aviso(id, texto = '', tipo = '') {
+                const el = $(id);
+                el.textContent = texto;
+                el.className = tipo ? `aviso ${tipo}` : 'aviso';
+            }
+
+            function avisoGeral(texto = '') {
+                const el = $('avisoGeral');
+                el.textContent = texto;
+                el.hidden = !texto;
+            }
+
+            function mostrarErro(erro) {
+                console.error(erro);
+                avisoGeral(erro instanceof TypeError
+                    ? 'Erro ao conectar com o servidor da API.'
+                    : erro.message);
+            }
+
+            /* ===== Sessão (token no localStorage) ===== */
+            const sessao = {
+                token: () => localStorage.getItem('token'),
+                nome: () => localStorage.getItem('userName'),
+                id: () => Number(localStorage.getItem('userId')) || null,
+                salvar(token, nome, id) {
+                    localStorage.setItem('token', token);
+                    localStorage.setItem('userName', nome);
+                    localStorage.setItem('userId', id);
+                },
+                limpar() {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('userName');
+                    localStorage.removeItem('userId');
+                }
+            };
+
+            function authHeaders(extra = {}) {
+                return { ...extra, 'Authorization': `Bearer ${sessao.token()}` };
+            }
+
+            // Lê a resposta de uma rota protegida. Em caso de erro, lança a
+            // mensagem enviada pela API (campo "error").
+            async function lerResposta(resposta) {
+                let dados = null;
+                try { dados = await resposta.json(); } catch { /* resposta sem corpo */ }
+
+                if (resposta.status === 401) {
+                    encerrarSessao();
+                    throw new Error('Sua sessão expirou. Entre novamente.');
+                }
+                if (!resposta.ok) {
+                    throw new Error(dados?.error || 'Erro inesperado. Tente novamente.');
+                }
+                return dados;
+            }
+
+            function atualizarSessao() {
+                const logado = !!sessao.token();
+
+                $('blocoAcesso').hidden = logado;
+                $('blocoSessao').hidden = !logado;
+                $('nomeLogado').textContent = sessao.nome() || '';
+
+                $('camposRestaurante').disabled = !logado;
+                $('dicaLogin').hidden = logado;
+            }
+
+            function encerrarSessao() {
+                sessao.limpar();
+                atualizarSessao();
+                renderCardapio(); // some com os botões de dono
+            }
+
+            // Quem entrou antes desta versão não tem o id guardado: busca em /auth/me
+            async function garantirUserId() {
+                if (!sessao.token() || sessao.id()) return;
+                try {
+                    const resposta = await fetch(`${AUTH_URL}/me`, { headers: authHeaders() });
+                    if (resposta.status === 401) return encerrarSessao();
+                    if (!resposta.ok) return;
+                    const dados = await resposta.json();
+                    localStorage.setItem('userId', dados.user.id);
+                } catch (erro) {
+                    console.error('Erro ao identificar o usuário:', erro);
+                }
+            }
+
+            /* ===== Cardápio: filtros ===== */
+            function renderFiltros() {
+                const categorias = [...new Set(restaurantes.map((r) => r.category))]
+                    .sort((a, b) => a.localeCompare(b, 'pt-BR'));
+
+                if (categoriaAtiva && !categorias.includes(categoriaAtiva)) {
+                    categoriaAtiva = '';
+                }
+
+                const caixa = $('filtros');
+                caixa.replaceChildren();
+
+                if (categorias.length > 0) {
+                    [['', 'Todas'], ...categorias.map((c) => [c, c])].forEach(([valor, rotulo]) => {
+                        const botao = document.createElement('button');
+                        botao.type = 'button';
+                        botao.className = 'chip';
+                        botao.textContent = rotulo;
+                        botao.setAttribute('aria-pressed', String(valor === categoriaAtiva));
+                        botao.addEventListener('click', () => {
+                            categoriaAtiva = valor;
+                            renderFiltros();
+                            renderCardapio();
+                        });
+                        caixa.appendChild(botao);
+                    });
+                }
+
+                const datalist = $('listaCategorias');
+                datalist.replaceChildren();
+                categorias.forEach((c) => {
+                    const opcao = document.createElement('option');
+                    opcao.value = c;
+                    datalist.appendChild(opcao);
+                });
+            }
+
+            /* ===== Cardápio: restaurantes ===== */
+            function restauranteHtml(r) {
+                // Só para exibir os botões. Quem decide a permissão é o servidor.
+                const userId = sessao.id();
+                const souDono = !!userId && r.ownerId === userId;
+                const nota = formatarNota(r.rating);
+
+                return `
+                    <li class="restaurante" data-id="${r.id}" data-dono="${souDono ? '1' : '0'}">
+                        <div class="prato">
+                            <span class="nome">${escapeHtml(r.name)}${souDono ? '<span class="selo">Seu restaurante</span>' : ''}</span>
+                            <span class="pontilhado" aria-hidden="true"></span>
+                            <span class="nota" aria-label="Nota ${nota} de 5">★ ${nota}</span>
+                        </div>
+                        <div class="acoes">
+                            <button type="button" class="btn secundario pequeno" data-acao="cardapio"
+                                    aria-expanded="false" aria-controls="menu-${r.id}">Ver cardápio</button>
+                            ${souDono ? '<button type="button" class="btn perigo pequeno" data-acao="excluir">Excluir restaurante</button>' : ''}
+                        </div>
+                        <div class="cardapio-rest" id="menu-${r.id}" hidden></div>
+                    </li>
+                `;
+            }
+
+            function renderCardapio() {
+                const raiz = $('cardapio');
+                raiz.replaceChildren();
+
+                if (restaurantes.length === 0) {
+                    const p = document.createElement('p');
+                    p.className = 'vazio';
+                    p.textContent = 'Nenhum restaurante cadastrado ainda. Entre na sua conta e cadastre o primeiro.';
+                    raiz.appendChild(p);
+                    return;
+                }
+
+                const grupos = new Map();
+                restaurantes
+                    .filter((r) => !categoriaAtiva || r.category === categoriaAtiva)
+                    .forEach((r) => {
+                        if (!grupos.has(r.category)) grupos.set(r.category, []);
+                        grupos.get(r.category).push(r);
+                    });
+
+                [...grupos.keys()]
+                    .sort((a, b) => a.localeCompare(b, 'pt-BR'))
+                    .forEach((categoria) => {
+                        const secao = document.createElement('section');
+                        secao.className = 'grupo';
+
+                        const titulo = document.createElement('h3');
+                        titulo.textContent = categoria;
+
+                        const lista = document.createElement('ul');
+                        lista.innerHTML = grupos.get(categoria)
+                            .sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0) || a.name.localeCompare(b.name, 'pt-BR'))
+                            .map(restauranteHtml)
+                            .join('');
+
+                        secao.append(titulo, lista);
+                        raiz.appendChild(secao);
+                    });
+            }
+
+            async function carregarRestaurantes() {
+                try {
+                    const resposta = await fetch(API_URL);
+                    if (!resposta.ok) throw new Error(`HTTP ${resposta.status}`);
+                    restaurantes = await resposta.json();
+                    renderFiltros();
+                    renderCardapio();
+                } catch (erro) {
+                    console.error('Erro ao carregar restaurantes:', erro);
+                    const p = document.createElement('p');
+                    p.className = 'vazio';
+                    p.textContent = 'Não foi possível carregar os restaurantes. Confira se o servidor está rodando e recarregue a página.';
+                    $('cardapio').replaceChildren(p);
+                }
+            }
+
+            /* ===== Pratos de um restaurante ===== */
+            function pratoHtml(prato, souDono) {
+                const foto = prato.imageUrl
+                    ? `<img class="foto" src="${BASE_URL}${escapeHtml(prato.imageUrl)}"
+                            alt="Foto de ${escapeHtml(prato.name)}" loading="lazy">`
+                    : '<div class="foto sem" aria-hidden="true">🍽️</div>';
+
+                const acoes = souDono ? `
+                    <div class="acoes">
+                        <button type="button" class="btn secundario pequeno" data-acao="foto">
+                            ${prato.imageUrl ? 'Trocar foto' : 'Enviar foto'}
+                        </button>
+                        <button type="button" class="btn perigo pequeno" data-acao="excluir-prato"
+                                data-prato="${prato.id}">Excluir prato</button>
+                    </div>
+                    <input type="file" accept="image/jpeg,image/png,image/webp"
+                           data-acao="arquivo" data-prato="${prato.id}" hidden>
+                ` : '';
+
+                return `
+                    <li class="item">
+                        ${foto}
+                        <div>
+                            <div class="linha">
+                                <strong>${escapeHtml(prato.name)}</strong>
+                                <span class="pontilhado" aria-hidden="true"></span>
+                                <span class="preco">${formatarPreco(prato.price)}</span>
+                            </div>
+                            <p>${escapeHtml(prato.description)}</p>
+                            ${acoes}
+                        </div>
+                    </li>
+                `;
+            }
+
+            function formularioPratoHtml(id) {
+                return `
+                    <form class="form-prato">
+                        <h4>Adicionar prato</h4>
+                        <div class="campo">
+                            <label for="pNome-${id}">Nome do prato</label>
+                            <input type="text" id="pNome-${id}" name="name" maxlength="100" required>
+                        </div>
+                        <div class="campo">
+                            <label for="pDesc-${id}">Descrição</label>
+                            <input type="text" id="pDesc-${id}" name="description" maxlength="500" required>
+                        </div>
+                        <div class="campo">
+                            <label for="pPreco-${id}">Preço (R$)</label>
+                            <input type="number" id="pPreco-${id}" name="price" step="0.01" min="0.01" required>
+                        </div>
+                        <button type="submit" class="btn">Adicionar prato</button>
+                    </form>
+                `;
+            }
+
+            async function carregarPratos(item) {
+                const menu = item.querySelector('.cardapio-rest');
+                const souDono = item.dataset.dono === '1';
+
+                menu.innerHTML = '<p class="mudo">Carregando cardápio…</p>';
+
+                try {
+                    const resposta = await fetch(`${API_URL}/${item.dataset.id}/dishes`);
+                    if (!resposta.ok) throw new Error('falha ao carregar');
+                    const pratos = await resposta.json();
+
+                    const lista = pratos.length
+                        ? `<ul class="pratos">${pratos.map((p) => pratoHtml(p, souDono)).join('')}</ul>`
+                        : '<p class="mudo">Este restaurante ainda não tem pratos.</p>';
+
+                    menu.innerHTML = lista + (souDono ? formularioPratoHtml(item.dataset.id) : '');
+                } catch (erro) {
+                    console.error('Erro ao carregar cardápio:', erro);
+                    menu.innerHTML = '<p class="mudo">Não foi possível carregar o cardápio.</p>';
+                }
+            }
+
+            async function criarPrato(form) {
+                const item = form.closest('.restaurante');
+                const dados = new FormData(form);
+                const botao = form.querySelector('button[type="submit"]');
+
+                avisoGeral();
+                botao.disabled = true;
+                try {
+                    const resposta = await fetch(`${API_URL}/${item.dataset.id}/dishes`, {
+                        method: 'POST',
+                        headers: authHeaders({ 'Content-Type': 'application/json' }),
+                        body: JSON.stringify({
+                            name: dados.get('name').trim(),
+                            description: dados.get('description').trim(),
+                            price: parseFloat(dados.get('price'))
+                        })
+                    });
+                    await lerResposta(resposta);
+                    await carregarPratos(item);
+                } catch (erro) {
+                    mostrarErro(erro);
+                    botao.disabled = false;
+                }
+            }
+
+            async function enviarImagem(input) {
+                const arquivo = input.files[0];
+                if (!arquivo) return;
+
+                const item = input.closest('.restaurante');
+                avisoGeral();
+
+                if (VALIDAR_TAMANHO_NO_NAVEGADOR && arquivo.size > LIMITE_IMAGEM_MB * 1024 * 1024) {
+                    avisoGeral(`A imagem deve ter no máximo ${LIMITE_IMAGEM_MB} MB.`);
+                    input.value = '';
+                    return;
+                }
+
+                // Não definimos Content-Type: o navegador monta o multipart sozinho
+                const dados = new FormData();
+                dados.append('image', arquivo);
+
+                try {
+                    const resposta = await fetch(`${DISHES_URL}/${input.dataset.prato}/image`, {
+                        method: 'POST',
+                        headers: authHeaders(),
+                        body: dados
+                    });
+                    await lerResposta(resposta);
+                    await carregarPratos(item);
+                } catch (erro) {
+                    input.value = '';
+                    mostrarErro(erro);
+                }
+            }
+
+            async function excluirPrato(botao, item) {
+                const nome = botao.closest('.item').querySelector('strong').textContent;
+                if (!confirm(`Excluir o prato "${nome}"?\n\nO prato e a foto serão apagados. Esta ação não pode ser desfeita.`)) return;
+
+                avisoGeral();
+                try {
+                    const resposta = await fetch(`${DISHES_URL}/${botao.dataset.prato}`, {
+                        method: 'DELETE',
+                        headers: authHeaders()
+                    });
+                    await lerResposta(resposta);
+                    await carregarPratos(item); // recarrega só o cardápio deste restaurante
+                } catch (erro) {
+                    mostrarErro(erro);
+                }
+            }
+
+            async function excluirRestaurante(item) {
+                const nome = item.querySelector('.nome').firstChild.textContent;
+                const confirmou = confirm(
+                    `Excluir "${nome}"?\n\nO restaurante, todos os pratos e as fotos serão apagados. Esta ação não pode ser desfeita.`
+                );
+                if (!confirmou) return;
+
+                avisoGeral();
+                try {
+                    const resposta = await fetch(`${API_URL}/${item.dataset.id}`, {
+                        method: 'DELETE',
+                        headers: authHeaders()
+                    });
+                    await lerResposta(resposta);
+                    await carregarRestaurantes(); // recarrega a lista do banco
+                } catch (erro) {
+                    mostrarErro(erro);
+                }
+            }
+
+            // Um único conjunto de ouvintes para todos os restaurantes (delegação de eventos)
+            const cardapioEl = $('cardapio');
+
+            cardapioEl.addEventListener('click', async (e) => {
+                const botao = e.target.closest('button[data-acao]');
+                if (!botao) return;
+                const item = botao.closest('.restaurante');
+
+                switch (botao.dataset.acao) {
+                    case 'cardapio': {
+                        const menu = item.querySelector('.cardapio-rest');
+                        if (!menu.hidden) {
+                            menu.hidden = true;
+                            botao.textContent = 'Ver cardápio';
+                            botao.setAttribute('aria-expanded', 'false');
+                            return;
+                        }
+                        menu.hidden = false;
+                        botao.textContent = 'Ocultar cardápio';
+                        botao.setAttribute('aria-expanded', 'true');
+                        await carregarPratos(item);
+                        break;
+                    }
+                    case 'excluir':
+                        await excluirRestaurante(item);
+                        break;
+                    case 'excluir-prato':
+                        await excluirPrato(botao, item);
+                        break;
+                    case 'foto':
+                        botao.closest('.item').querySelector('input[type="file"]').click();
+                        break;
+                }
+            });
+
+            cardapioEl.addEventListener('change', (e) => {
+                if (e.target.matches('input[data-acao="arquivo"]')) enviarImagem(e.target);
+            });
+
+            cardapioEl.addEventListener('submit', (e) => {
+                if (e.target.matches('.form-prato')) {
+                    e.preventDefault();
+                    criarPrato(e.target);
+                }
+            });
+
+            /* ===== Conta: entrar / criar conta ===== */
+            function definirModo(novoModo) {
+                modo = novoModo;
+                const registro = modo === 'registro';
+
+                document.querySelectorAll('[data-modo]').forEach((botao) => {
+                    botao.setAttribute('aria-pressed', String(botao.dataset.modo === modo));
+                });
+
+                $('campoNome').hidden = !registro;
+                $('cNome').required = registro;
+                $('cSenha').autocomplete = registro ? 'new-password' : 'current-password';
+                $('btnAcesso').textContent = registro ? 'Criar conta' : 'Entrar';
+                aviso('avisoConta');
+            }
+
+            async function enviarJson(url, corpo) {
+                return fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(corpo)
+                });
+            }
+
+            async function acessar(evento) {
+                evento.preventDefault();
+                aviso('avisoConta');
+
+                const name = $('cNome').value.trim();
+                const email = $('cEmail').value.trim();
+                const password = $('cSenha').value;
+
+                if (!email || !password || (modo === 'registro' && !name)) {
+                    aviso('avisoConta', 'Preencha todos os campos para continuar.', 'erro');
+                    return;
+                }
+
+                try {
+                    if (modo === 'registro') {
+                        const cadastro = await enviarJson(`${AUTH_URL}/register`, { name, email, password });
+
+                        if (cadastro.status === 409) {
+                            aviso('avisoConta', 'Este e-mail já está cadastrado. Entre com ele ou use outro e-mail.', 'erro');
+                            return;
+                        }
+                        if (!cadastro.ok) {
+                            aviso('avisoConta', 'Não foi possível criar a conta. Confira nome, e-mail e senha.', 'erro');
+                            return;
+                        }
+                    }
+
+                    // Depois de criar a conta, entra automaticamente
+                    const login = await enviarJson(`${AUTH_URL}/login`, { email, password });
+
+                    if (login.status === 401) {
+                        aviso('avisoConta', 'E-mail ou senha incorretos. Confira os dados e tente de novo.', 'erro');
+                        return;
+                    }
+                    if (!login.ok) {
+                        aviso('avisoConta', 'Não foi possível entrar agora. Tente novamente em instantes.', 'erro');
+                        return;
+                    }
+
+                    const dados = await login.json();
+                    sessao.salvar(dados.token, dados.user.name, dados.user.id);
+                    $('formAcesso').reset();
+                    definirModo('entrar');
+                    aviso('avisoRestaurante');
+                    avisoGeral();
+                    atualizarSessao();
+                    renderCardapio(); // mostra os botões de dono
+                } catch (erro) {
+                    console.error('Erro na autenticação:', erro);
+                    aviso('avisoConta', 'Sem conexão com o servidor. Confira se ele está rodando.', 'erro');
+                }
+            }
+
+            function sair() {
+                aviso('avisoRestaurante');
+                avisoGeral();
+                encerrarSessao();
+            }
+
+            /* ===== Cadastrar restaurante (rota protegida) ===== */
+            async function cadastrarRestaurante(evento) {
+                evento.preventDefault();
+                aviso('avisoRestaurante');
+
+                const novo = {
+                    name: $('rNome').value.trim(),
+                    category: $('rCategoria').value.trim(),
+                    rating: parseFloat($('rNota').value)
+                };
+
+                try {
+                    const resposta = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: authHeaders({ 'Content-Type': 'application/json' }),
+                        body: JSON.stringify(novo)
+                    });
+
+                    if (resposta.ok) {
+                        $('formRestaurante').reset();
+                        aviso('avisoRestaurante', 'Restaurante cadastrado.', 'ok');
+                        await carregarRestaurantes();
+                    } else if (resposta.status === 401) {
+                        encerrarSessao(); // token ausente, inválido ou expirado
+                        aviso('avisoRestaurante', 'Sua sessão expirou. Entre novamente para cadastrar restaurantes.', 'erro');
+                    } else {
+                        aviso('avisoRestaurante', 'Não foi possível cadastrar o restaurante. Confira os dados e tente de novo.', 'erro');
+                    }
+                } catch (erro) {
+                    console.error('Erro ao cadastrar restaurante:', erro);
+                    aviso('avisoRestaurante', 'Sem conexão com o servidor. Confira se ele está rodando.', 'erro');
+                }
+            }
+
+            /* ===== Eventos e inicialização ===== */
+            document.querySelectorAll('[data-modo]').forEach((botao) => {
+                botao.addEventListener('click', () => definirModo(botao.dataset.modo));
+            });
+            $('formAcesso').addEventListener('submit', acessar);
+            $('btnSair').addEventListener('click', sair);
+            $('formRestaurante').addEventListener('submit', cadastrarRestaurante);
+
+            (async () => {
+                definirModo('entrar');
+                atualizarSessao();
+                await garantirUserId();
+                await carregarRestaurantes();
+            })();
+        })();
+    </script>
+</body>
+</html>

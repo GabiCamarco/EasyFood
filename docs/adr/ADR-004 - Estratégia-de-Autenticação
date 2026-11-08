@@ -1,0 +1,76 @@
+# ADR-004 - Estratégia de Autenticação da EasyFood
+
+## Status
+Aceita
+
+## Data
+19/09/2026
+
+## Responsáveis
+Equipe EasyFood
+
+## Contexto
+Até este ponto, todas as rotas da API EasyFood eram públicas — qualquer cliente podia consultar ou cadastrar
+restaurantes sem qualquer verificação de identidade. Com a introdução do modelo `User` (ver migration
+`add_user_model`), tornou-se necessário definir um mecanismo de autenticação que permitisse identificar quem está
+fazendo cada requisição e restringir ações sensíveis, como o cadastro de novos restaurantes, apenas a usuários
+autenticados.
+
+## Alternativas consideradas
+1. **Sessões com cookies (session-based auth):** o servidor mantém o estado da sessão do usuário, geralmente
+   armazenado em memória ou em um banco/cache dedicado. Descartada por exigir gerenciamento de estado no servidor
+   e um mecanismo adicional de armazenamento de sessões, aumentando a complexidade para o estágio atual da API.
+2. **OAuth 2.0 com provedor externo (Google, GitHub, etc.):** delega a autenticação a terceiros. Descartada por
+   exigir integração com provedores externos e configuração adicional, desnecessária para uma API ainda em fase
+   de validação com login próprio.
+3. **JWT (JSON Web Token):** o servidor emite um token assinado após o login, que o cliente passa a enviar em
+   cada requisição subsequente via header `Authorization`. Não exige armazenamento de estado de sessão no
+   servidor.
+
+## Decisão
+Adotar autenticação baseada em **JWT**, com senhas armazenadas de forma segura usando **hash via `bcrypt`**, e
+proteger rotas sensíveis através de um middleware de verificação de token.
+
+## Justificativa
+O JWT permite que a API seja *stateless*: o servidor não precisa guardar sessões, apenas validar a assinatura do
+token a cada requisição. A biblioteca `jsonwebtoken` cuida da emissão e verificação dos tokens, incluindo tempo
+de expiração (`expiresIn: '1d'`), enquanto o `bcrypt` garante que as senhas nunca sejam armazenadas em texto
+puro no banco — apenas seu hash é persistido na tabela `User`. Essa combinação é simples de implementar, amplamente
+usada em APIs Node.js/Express e suficiente para as necessidades atuais do projeto.
+
+## Implementação
+- `POST /auth/register`: cria um novo usuário, com a senha convertida em hash pelo `bcrypt` antes de ser salva.
+- `POST /auth/login`: valida e-mail e senha e, em caso de sucesso, retorna um token JWT assinado com
+  `JWT_SECRET`, contendo o `id` e o `email` do usuário no payload.
+- `GET /auth/me`: rota protegida de exemplo, que retorna os dados do usuário autenticado a partir do token.
+- Middleware `verifyJWT` (`authMiddleware.js`): extrai o token do header `Authorization: Bearer <token>`, valida
+  a assinatura e expiração, e injeta o usuário autenticado em `req.user`.
+- A rota `POST /restaurants` passou a exigir um token válido, enquanto `GET /restaurants` permanece pública.
+
+## Consequências
+
+### Positivas
+- API permanece *stateless*, sem necessidade de armazenar sessões no servidor.
+- Senhas nunca são armazenadas em texto puro, reduzindo o impacto de um eventual vazamento do banco de dados.
+- Fácil de proteger novas rotas no futuro, bastando aplicar o middleware `verifyJWT`.
+- Implementação simples, com bibliotecas maduras e amplamente documentadas (`bcrypt`, `jsonwebtoken`).
+
+### Negativas
+- Tokens JWT não podem ser revogados individualmente antes de sua expiração — não há, hoje, uma lista de
+  bloqueio (*blacklist*) de tokens.
+- O segredo usado para assinar os tokens (`JWT_SECRET`) precisa ser protegido com cuidado: caso vaze, qualquer
+  token pode ser forjado.
+- A verificação de token acontece em todas as requisições às rotas protegidas, adicionando um pequeno custo de
+  processamento (verificação de assinatura) a cada chamada.
+
+## Critérios de revisão
+Esta decisão deverá ser reavaliada se:
+1. For necessário revogar tokens antes de sua expiração (ex.: logout forçado, troca de senha, banimento de
+   usuário) — cenário que exigiria um mecanismo de refresh tokens ou uma lista de tokens revogados.
+2. A aplicação precisar de autenticação federada com provedores externos (login social).
+3. Surgirem diferentes níveis de permissão (roles/perfis de acesso), exigindo um controle de autorização mais
+   granular do que a simples verificação de token válido.
+
+## Notas
+Esta ADR documenta a camada de autenticação introduzida junto ao modelo `User` (ADR-002/ADR-003 já haviam
+resolvido a persistência de dados via SQLite/Prisma, da qual a tabela `User` também faz uso).

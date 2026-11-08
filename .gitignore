@@ -1,0 +1,11 @@
+# Arquivos de variáveis de ambiente e banco local
+.env
+*.db
+*.db-journal
+
+# Pastas de dependências
+node_modules/
+
+# Imagens enviadas pelos usuarios e backups locais
+uploads/
+*.backup
